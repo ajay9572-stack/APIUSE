@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             override fun onFailure(call: Call<MyData?>, t: Throwable)
             {
                 // if api is fail
-                Log.d( "MainActivity", "onFailure: " + t.message)
+                Log.d( " MainActivity", "onFailure: " + t.message)
             }
         })
     }
