@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    kotlin("plugin.serialization") version "1.8.0"
 }
 
 android {
@@ -26,6 +27,12 @@ android {
             )
         }
     }
+    buildFeatures {
+        viewBinding = true
+        dataBinding = true
+    }
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -47,6 +54,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     // add retrofit d3ependcy
     implementation(libs.retrofit)
+    implementation(libs.kotlinx.serialization.json)
     //Gson
     implementation (libs.converter.gson)
     //picasso for loading image in my image view

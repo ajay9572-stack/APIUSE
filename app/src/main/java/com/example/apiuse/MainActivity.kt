@@ -2,24 +2,18 @@ package com.example.apiuse
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import retrofit2.Call
 import retrofit2.Callback
-import retrofit2.Converter
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
-
-
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var myAdapter: MyAdapter
 
@@ -27,33 +21,41 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
         recyclerView = findViewById(R.id.recyclerView)
-        val retrofitBuilder = Retrofit.Builder()
-            .baseUrl("https://dummyjson.com/")
-            .addConverterFactory(GsonConverterFactory.create())
+
+        // Build Retrofit instance
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://real-time-news-data.p.rapidapi.com/") // Base URL for the news API
+            .addConverterFactory(GsonConverterFactory.create())   // Use Gson for JSON parsing
             .build()
             .create(ApiInterface::class.java)
 
+        // Make an API call to get news headlines
+        val call = retrofit.getTopHeadlines(
+            country = "US",
+            language = "en",
+            limit = 500,
+            apiKey = "5f4f0939ddmsh37728f0e0b39793p13e9aajsn72c861191c8c",
+            apiHost = "real-time-news-data.p.rapidapi.com"
+        )
 
-       val retrofit = retrofitBuilder.getProduct()
-        retrofit.enqueue(object : Callback<MyData?> {
-            override fun onResponse(call: Call<MyData?>, response: Response<MyData?>) {
-                // if api is success
-                val responseBody = response.body()!!
-                val productList = responseBody?.products!!
-               val collectData = StringBuilder()
-                 myAdapter = MyAdapter(this@MainActivity,productList)
-                recyclerView.adapter = myAdapter
-                recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-
+        call.enqueue(object : Callback <MyData> { // Adjust the response type to List<MyData>
+            override fun onResponse(call: Call<MyData>, response: Response<MyData>) {
+                if (response.isSuccessful) {
+                    Log.d("MainActivityffff", "API call successful")
+                    val newsList = response.body() ?: emptyList()// Handle null response
+                    myAdapter = MyAdapter(newsList, this@MainActivity)
+                    recyclerView.adapter = myAdapter
+                    recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+                } else {
+                    Log.e("MainActivitrgy", "API call failed with code: ${response.code()}")
+                }
             }
 
-            override fun onFailure(call: Call<MyData?>, t: Throwable)
-            {
-                // if api is fail
-                Log.d( " MainActivity", "onFailure: " + t.message)
+            override fun onFailure(call: Call<MyData>, t: Throwable) {
+                Log.e("MainActivityefef", "API call failed: ${t.message}")
             }
         })
     }
-
 }
